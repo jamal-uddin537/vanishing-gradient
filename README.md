@@ -25,19 +25,19 @@ $\delta_l = \partial \mathcal{L} / \partial z_l$. The chain rule gives the
 backward recursion
 
 $$
-\delta_{l} = \operatorname{diag}\big(\phi'(z_{l})\big)\, W_{l+1}\, \delta_{l+1},
+\delta_{l} = \mathrm{diag}\big(\phi'(z_{l})\big)  W_{l+1}  \delta_{l+1},
 \qquad
-\frac{\partial \mathcal{L}}{\partial W_l} = h_{l-1}\,\delta_l^\top .
+\frac{\partial \mathcal{L}}{\partial W_l} = h_{l-1} \delta_l^\top .
 $$
 
 Unrolling it from the output down to layer $l$:
 
 $$
-\delta_l = \Big[\prod_{k=l}^{L-1} \operatorname{diag}\big(\phi'(z_k)\big)\, W_{k+1}\Big]\, \delta_L .
+\delta_l = \Big[\prod_{k=l}^{L-1} \mathrm{diag}\big(\phi'(z_k)\big)  W_{k+1}\Big]  \delta_L .
 $$
 
 So the gradient that reaches an early layer is a **product of $L-l$ Jacobians**.
-If each factor has a typical gain $\gamma$, then $\|\delta_l\| \sim \gamma^{\,L-l}\|\delta_L\|$:
+If each factor has a typical gain $\gamma$, then $\|\delta_l\| \sim \gamma^{ L-l}\|\delta_L\|$:
 it **vanishes** exponentially if $\gamma<1$ and **explodes** if $\gamma>1$.
 
 ### 1.2 Why the sigmoid is the worst case
@@ -45,7 +45,7 @@ For $\sigma(z) = 1/(1+e^{-z})$, $\sigma'(z) = \sigma(z)(1-\sigma(z)) \le 1/4$,
 with the maximum only at $z=0$. Hence
 
 $$
-\|\delta_l\| \;\le\; \Big(\tfrac14\Big)^{L-l} \prod_{k=l+1}^{L} \|W_k\|_2 \, \|\delta_L\| .
+\|\delta_l\|  \le  \Big(\tfrac14\Big)^{L-l} \prod_{k=l+1}^{L} \|W_k\|_2   \|\delta_L\| .
 $$
 
 Unless the weights are large enough to compensate (which then pushes units into
@@ -53,21 +53,21 @@ saturation, where $\sigma'\to 0$), the gradient shrinks by at least a factor of
 4 per layer. Sigmoid outputs are also **not zero-centred** (mean ≈ 0.5), which
 shifts every following pre-activation away from 0 and lowers $\sigma'$ further.
 
-For $\tanh$, $\tanh'(0)=1$, and for ReLU, $\phi'(z)\in\{0,1\}$, so the
+For $\tanh$, $\tanh'(0)=1$, and for ReLU, $\phi'(z)\in\lbrace 0,1\rbrace$, so the
 activation itself does not systematically shrink the signal.
 
 ### 1.3 Variance-preserving initialisation
-Assume i.i.d. zero-mean weights with variance $\operatorname{Var}(W)$ and
+Assume i.i.d. zero-mean weights with variance $\mathrm{Var}(W)$ and
 fan-in $n$. Propagating variances through one layer (Glorot & Bengio, 2010):
 
 $$
-\operatorname{Var}(\delta_l) \approx n_{\text{out}}\,\operatorname{Var}(W)\,\mathbb{E}[\phi'(z)^2]\,\operatorname{Var}(\delta_{l+1}) .
+\mathrm{Var}(\delta_l) \approx n_{\text{out}} \mathrm{Var}(W) \mathbb{E}[\phi'(z)^2] \mathrm{Var}(\delta_{l+1}) .
 $$
 
 Keeping the gain equal to 1 requires
 
-* **Xavier/Glorot** (tanh, $\phi'(0)=1$): $\operatorname{Var}(W)=\dfrac{2}{n_\text{in}+n_\text{out}}$ (compromise between forward and backward condition);
-* **He/Kaiming** (ReLU, half of units are inactive so $\mathbb{E}[\phi'^2]=1/2$): $\operatorname{Var}(W)=\dfrac{2}{n_\text{in}}$.
+* **Xavier/Glorot** (tanh, $\phi'(0)=1$): $\mathrm{Var}(W)=\dfrac{2}{n_\text{in}+n_\text{out}}$ (compromise between forward and backward condition);
+* **He/Kaiming** (ReLU, half of units are inactive so $\mathbb{E}[\phi'^2]=1/2$): $\mathrm{Var}(W)=\dfrac{2}{n_\text{in}}$.
 
 For a sigmoid, even Xavier gives a per-layer gain of about
 $\sigma'(z)\cdot 1 \le 1/4$, so **initialisation alone cannot rescue a deep sigmoid network**.
